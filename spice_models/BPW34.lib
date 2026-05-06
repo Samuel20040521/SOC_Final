@@ -1,0 +1,2 @@
+* BPW34 Silicon PIN Photodiode standard model
+.MODEL BPW34 D (IS=40p RS=10 N=1.05 EG=1.11 CJO=72p M=0.42 VJ=0.8 BV=60 IBV=10u)

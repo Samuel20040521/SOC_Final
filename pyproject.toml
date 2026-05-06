@@ -1,0 +1,11 @@
+[project]
+name = "soc-final"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.4",
+    "pyspice>=1.5",
+    "schemdraw>=0.22",
+]

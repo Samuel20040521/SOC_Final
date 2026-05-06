@@ -1,0 +1,14 @@
+# TIA breadboard measurements
+# Date         : 2026-05-06
+# Circuit      : Vishay BPW34 photodiode -> Microchip MCP6004 transimpedance amplifier
+# Topology     : Anode at GND, cathode at op-amp inverting input (N_INV).
+#                R_F || C_F (100 nF) feedback between N_INV and VOUT.
+#                Op-amp non-inverting input tied to GND. VDD = 3.3 V, VSS = 0 V.
+# Measurement  : Steady-state V(VOUT) under four illumination conditions.
+# Units        : R_F in ohms, all V_OUT columns in volts.
+#
+# R_F[Ohm]     TotalDark   WhiteCap    RoomLight   PhoneFlashlight
+1000000        0.3180      3.3300      3.3300      3.3300
+100000         0.0240      0.5230      1.3420      3.3300
+10000          0.0031      0.0485      0.1352      2.4000
+1000           0.0058      0.0047      0.0113      0.2140
