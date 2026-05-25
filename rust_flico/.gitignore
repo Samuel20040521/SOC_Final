@@ -1,0 +1,6 @@
+/target
+/dist
+
+# Captured data / one-off generated assets
+flicker_*.csv
+kicad_noise_pwl.txt

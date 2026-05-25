@@ -1,0 +1,29 @@
+[package]
+name = "rust_flico"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.29"
+egui = "0.29"
+egui_plot = "0.29"
+realfft = "3.4"
+rustfft = "6.2"
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+web-time = "1"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+serialport = "4.6"
+crossbeam-channel = "0.5"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = ["HtmlCanvasElement", "Document", "Window"] }
+getrandom = { version = "0.2", features = ["js"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

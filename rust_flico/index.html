@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flicker Scope (Web)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0b0e14;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #e6edf3;
+    }
+    #the-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #7d8590;
+      pointer-events: none;
+    }
+  </style>
+  <link data-trunk rel="rust" data-bin="rust_flico" data-wasm-opt="z" />
+</head>
+<body>
+  <div id="loading">Loading wasm module…</div>
+  <canvas id="the-canvas"></canvas>
+  <script>
+    // Hide the loader once the canvas is being drawn into.
+    const obs = new MutationObserver(() => {
+      const c = document.getElementById('the-canvas');
+      if (c && c.width > 0) {
+        const l = document.getElementById('loading');
+        if (l) l.remove();
+        obs.disconnect();
+      }
+    });
+    obs.observe(document.getElementById('the-canvas'), { attributes: true });
+    setTimeout(() => {
+      const l = document.getElementById('loading');
+      if (l) l.remove();
+    }, 10_000);
+  </script>
+</body>
+</html>
