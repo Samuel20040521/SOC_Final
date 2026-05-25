@@ -1,0 +1,109 @@
+name: Release rust_flico
+
+# Cut a release by tagging:
+#   git tag rust_flico-v0.1.0 && git push origin rust_flico-v0.1.0
+# A workflow_dispatch trigger is also provided for smoke-testing the build
+# without publishing to a release.
+
+on:
+  push:
+    tags:
+      - "rust_flico-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS universal
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: rust_flico
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust_flico
+
+      - name: Build aarch64
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Build x86_64
+        run: cargo build --release --target x86_64-apple-darwin
+
+      - name: Stitch universal binary and package
+        run: |
+          mkdir -p stage
+          lipo -create \
+            target/aarch64-apple-darwin/release/rust_flico \
+            target/x86_64-apple-darwin/release/rust_flico \
+            -output stage/rust_flico
+          chmod +x stage/rust_flico
+          tar -C stage -czvf rust_flico-macos-universal.tar.gz rust_flico
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust_flico-macos
+          path: rust_flico/rust_flico-macos-universal.tar.gz
+          if-no-files-found: error
+
+  build-windows:
+    name: Build Windows x86_64
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: rust_flico
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust_flico
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path target/release/rust_flico.exe `
+            -DestinationPath rust_flico-windows-x86_64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust_flico-windows
+          path: rust_flico/rust_flico-windows-x86_64.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    needs: [build-macos, build-windows]
+    # Only publish for real tag pushes; workflow_dispatch runs stop after build.
+    if: startsWith(github.ref, 'refs/tags/rust_flico-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/rust_flico-macos/rust_flico-macos-universal.tar.gz
+            artifacts/rust_flico-windows/rust_flico-windows-x86_64.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
