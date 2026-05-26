@@ -275,6 +275,20 @@ fn spawn_synth_source(
 // ============================================================================
 #[cfg(not(target_arch = "wasm32"))]
 fn auto_detect_pico_port() -> Option<String> {
+    // Windows: the Pico CDC shows up as a numbered COM port; on this rig it
+    // is wired to COM3, so default there. `--port` still overrides.
+    #[cfg(target_os = "windows")]
+    {
+        return Some("COM3".to_string());
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        auto_detect_pico_port_unix()
+    }
+}
+
+#[cfg(all(not(target_arch = "wasm32"), not(target_os = "windows")))]
+fn auto_detect_pico_port_unix() -> Option<String> {
     let ports = serialport::available_ports().ok()?;
     for p in &ports {
         let mut desc = String::new();
